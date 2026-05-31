@@ -2,29 +2,29 @@
 
 ## **1. Project Overview and Background Information**
 
-Accompanied by the rapid urbanization process across the world, the inequality of development within modern cities is outstanding. The classical urban model, in which a central business district (CBD) is surrounded by a deteriorating inner 'zone of transition' or slum, was first set out by Burgess (1925). However, after the turn of the 21st century, the skyrocketing growth rate of countless Global South countries has added new layers to that model. This is especially true in China, one of the fastest growing countries, which has lifted close to 800 million people out of extreme poverty over the past four decades (World Bank, 2022) and where 66.16% of the total population was living in cities by the end of 2023 (National Bureau of Statistics of China, 2024). Throughout this transformation, the inequality within cities has been comparatively neglected and not focused on.
+Accompanied by the rapid urbanization process across the world, the inequality of development within modern cities is outstanding. The classical urban model, in which a central business district (CBD) is surrounded by a deteriorating inner 'zone of transition' or slum, was first set out by Burgess back in 1925. However, after 21st century, the skyrocketing growth rate of countless Global South countries has added new layers to that model. This is especially true in China, one of the fastest growing countries, which has lifted close to 800 million people out of extreme poverty over the past four decades (World Bank, 2022) and where 66.16% of the total population was living in cities by the end of 2023 (National Bureau of Statistics of China, 2024). Throughout this transformation, the inequality within cities has been comparatively neglected and not focused on.
 
-In 2015, the United Nations adopted the 2030 Agenda for Sustainable Development, whose Goal 11 calls on countries to 'make cities and human settlements inclusive, safe, resilient and sustainable' (United Nations, 2015). After mass urbanisation, the inequality within fast developing cities cannot be ignored anymore. In China, the State Council issued its first dedicated guideline on urban-village redevelopment in 2023, initially targeting 35 mega- and super-large cities and, since late 2024, extending support to nearly 300 prefecture-level cities (General Office of the State Council, 2023); in 2025 the central authorities further designated the renewal of urban villages as a priority task within a nationwide urban-renewal action plan aiming for major progress by 2030 (General Office of the CPC Central Committee and General Office of the State Council, 2025).
+In 2015, the United Nations adopted the 2030 Agenda for Sustainable Development, whose Goal 11 calls on countries to 'make cities and human settlements inclusive, safe, resilient and sustainable' (United Nations, 2015). After mass urbanisation, the inequality within fast developing cities cannot be ignored anymore. In China, the State Council issued its first dedicated guideline on urban-village redevelopment in 2023, initially targeting 35 mega and super-large cities. Since late 2024, this list has extended support to nearly 300 prefecture-level cities (General Office of the State Council, 2023). In 2025, the central authorities further designated the renewal of urban villages as a priority task within a nationwide urban-renewal action plan aiming for major progress by 2030 (General Office of the CPC Central Committee and General Office of the State Council, 2025).
 
 ### 1.1 What is Urban Village
 
-An urban village (城中村, *chengzhongcun*, literally 'village within the city') is a formerly rural village that has been physically encircled by the rapid outward expansion of a Chinese city (Cao et al., 2025). Under China's dual urban-rural land system, such villages retain collectively owned rural land and their original household-registration (*hukou*) based governance even after the surrounding farmland has been urbanised, which leaves them largely outside the formal urban planning framework (Wang et al., 2009). The outcome is a dense, informal, often high-rise settlement that supplies cheap rental housing to low-income rural migrants and the urban poor (Zhang, 2011).
+An urban village (*chengzhongcun*, literally 'village within the city') is a formerly rural village that has been physically encircled by the rapid outward expansion of a Chinese city (Cao et al., 2025). China runs a dual urban-rural land system， and under this system, such villages keep their collectively owned rural land and their original household-registration based governance, even after the surrounding farmland has been urbanised or privatised. As a result, they sit largely outside the formal urban planning framework (Wang et al., 2009). The outcome is a dense, informal and often high-rise settlement. It supplies cheap rental housing to low-income rural migrants and the urban poor (Zhang, 2011).
 
 ### 1.2 Difference between urban village and slum
 
-Although urban villages superficially resemble the slums, favelas and shantytowns of other developing countries, two key differences distinguish them. The first is tenure: urban villages sit on collectively owned rural land on which villagers hold recognised property rights and build durable, multi-storey 'handshake' housing, rather than squatting illegally on land they do not own (Wang et al., 2009). The second is origin: *chengzhongcun* are a deliberate and legally distinct outcome of China's dual urban-rural land system, not a product of state or market failure (Zhang, 2011). As a result, they are physically much closer to formal built-up fabric than classical slums are (Cao et al., 2025).
+Although urban villages superficially resemble the slums, favelas and shantytowns of other developing countries, two key differences distinguish them. The first is tenure. Urban villages sit on collectively owned rural land on which villagers hold recognised property rights and build multi-storey 'handshake' housing, rather than squatting illegally on land they do not own (Wang et al., 2009). The second is origin. Urban villages are a deliberate and legally distinct outcome of China's dual urban-rural land system, not a product of state or housing market failure (Zhang, 2011). As a result, they are physically much closer to formal built-up fabric than classical slums are.
 
 ### 1.3 Difference between urban village and normal built-up area
 
-Both urban villages and the surrounding formal built-up area appear as continuous, high-density urban fabric, which makes them hard to separate, especially in coarse remote-sensing data (Cao et al., 2025). The difference is one of morphology and planning. Formal built-up areas, such as residential compounds, commercial districts and industrial parks, follow planned street grids with building setbacks, wider roads and deliberate green and open space. Urban villages, built incrementally by villagers without unified planning, are far denser: tightly packed multi-storey 'handshake' buildings separated by narrow alleys, with minimal vegetation or open space (Wang et al., 2009).
+Both urban villages and the surrounding formal built-up area appear as continuous, high-density urban fabric, which makes them hard to separate, especially in coarse remote-sensing data. The difference is one of morphology and planning. Formal built-up areas, such as residential compounds, commercial districts and industrial parks, follow planned street grids with building setbacks, wider roads and deliberate green and open space. Urban villages, built incrementally by villagers without unified planning, are far denser. It usually has tightly packed multi-storey 'handshake' buildings separated by narrow alleys, with minimal vegetation or open space (Wang et al., 2009).
 
 ### 1.4 What is the issue with urban village?
 
-The first issue is physical and safety-related: urban villages typically suffer from high public-health risks, frequent building and fire-safety hazards, poor supporting infrastructure and a degraded living environment (General Office of the State Council, 2023).
+The first issue is safety. urban villages typically suffer from high public-health risks, frequent building and fire-safety hazards, poor supporting infrastructure and a degraded living environment (General Office of the State Council, 2023).
 
-The second issue is social: as the cheapest foothold in the city, urban villages concentrate low-income rural migrants who, excluded by the *hukou* system, remain marginalised from formal urban services and welfare (Wang et al., 2009).
+The second issue is social. As the cheapest foothold in the city, urban villages concentrate low-income rural migrants who, excluded by the household registration system, remain marginalised from formal urban services and welfares (Wang et al., 2009).
 
-The third main issue is informational: urban villages lack reliable, up-to-date geospatial data, which leaves planners without a clear picture of where they are and hinders evidence-based upgrading (Cao et al., 2025).
+The third main issue is informational. Urban villages lack reliable, up-to-date geospatial data, which leaves planners without a clear picture of where they are and hinders evidence-based upgrading.
 
 ### 1.5 Why are we using satellite image to monitor urban village?
 
@@ -32,11 +32,13 @@ Field surveys and manual digitisation can identify urban villages accurately, bu
 
 ### 1.6 Why is machine learning suitable for analysing these satellite images? 
 
-Separating urban villages from formal built-up areas is not a simple threshold problem: the distinction emerges only from subtle, non-linear combinations of many weak signals, such as SAR backscatter, SWIR texture, vegetation indices and urban context, which also vary from city to city. Machine learning is well suited to this setting because it can learn these high-dimensional, non-linear feature interactions directly from data, rather than relying on hand-crafted rules. It also scales to the hundreds of thousands of grid cells produced across ten cities and supports cross-city generalisation, precisely the scalability and transferability that current urban-village mapping still lacks (Cao et al., 2025).
+Separating urban villages from formal built-up areas is not a simple threshold problem. The distinction emerges only from subtle, non-linear combinations of many weak signals, such as SAR backscatter, SWIR texture, vegetation indices and urban context, which also vary from city to city. Machine learning is well suited to this setting because it can learn these high-dimensional, non-linear feature interactions directly from data, rather than relying on hand-crafted rules. It also supports cross-city generalisation, precisely the scalability and transferability that current urban-village mapping still lacks.
 
 ## **2. Existing Literature Review:**
 
-Although urban villages are an established topic in urban planning and social science, the remote-sensing literature devoted to mapping them is comparatively thin. The most recent systematic review, by Cao et al. (2025), records fewer than fifty peer-reviewed remote-sensing studies on Chinese urban villages across roughly two decades, with annual publication volume rarely exceeding five papers per year (Cao et al., 2025, Figure 2). 
+Although urban villages are an established topic in urban planning and social science, the remote-sensing literature devoted to mapping them is suprisingly thin. The most recent systematic review, by Cao et al. (2025), records fewer than fifty peer-reviewed remote-sensing studies on Chinese urban villages across roughly two decades, with annual publication volume rarely exceeding five papers per year (Cao et al., 2025). 
+
+! [picture]
 
 By way of contrast, the broader literature on global slum and informal-settlement mapping reviewed by Kuffer et al. (2016) holds an order of magnitude more entries, and the follow-up critical review by Mahabir et al. (2018) extends this analysis to high- and very-high-resolution approaches. This volume gap is diagnostic rather than coincidental. The Chinese urban village is morphologically much closer to formal built-up fabric than to favela-style slums, so the standard slum-detection pipelines transfer to it only partially, and a parallel domain-specific literature has therefore developed slowly.
 
@@ -54,36 +56,42 @@ Since approximately 2020, the dominant approach has shifted to pixel-wise deep l
 
 A new wave of work has begun to push past the single-city bottleneck. Zhang et al. (2024) introduced UV-SAM, an adaptation of Meta’s Segment Anything Model that produces fine-grained boundary masks across two Chinese cities and outperforms earlier baselines on both datasets. A flexible Sentinel-2-only deep-learning framework (Lin et al., 2025) employs a dual-branch encoder that fuses annual and seasonal imagery and reports mIoU = 0.83 with cross-city transfer tested within the Pearl River Delta. Most ambitiously, the CUGUV benchmark (Yao et al., 2025) released the first multi-city hand-curated urban-village dataset covering 15 Chinese cities for two years (2010 and 2020), and the accompanying Segformer model claims robust large-scale mapping performance. Similiarly, every paper in this frontier still depends on **hand-curated training labels**. CUGUV in particular reports thousands of hand-traced polygons across its 15-city sample. Although these works demonstrate transfer across handfuls of cities, the labelling effort scales linearly with the number of cities studied, so the fundamental cost barrier of manual digitisation is reduced but not removed.
 
-Looking across all three families, and at the wider slum literature (Kuffer et al., 2016; Mahabir et al., 2018), four limitations comes up. First, **cross-city held-out evaluation is rare**. Even the recent CUGUV dataset reports one aggregate accuracy figure, rather than results for each test city.Second, most studies still **classify each pixel or grid on its own**. This ignores the fact that urban villages cluster together in space, and spatial graph models that could use this clustering are absent from the reviewed work. Thirdly, **the imbalanced original data** is always ignored. Urban villages usually cover only 1–2% of the urban area. This is rarely treated as a core problem, so a high overall accuracy can still hide poor recall on the village class. Fourth, even the latest cross-city deep-learning methods (Zhang et al., 2024; Lin et al., 2025; Yao et al., 2025) **still need hand-labelled training data for every new city**. It remains unclear whether free, public weak signals could replace manual annotation altogether.
+Looking across all three families, and at the wider slum literature (Kuffer et al., 2016; Mahabir et al., 2018), four limitations comes up. First, **cross-city held-out evaluation is rare**. Even the recent CUGUV dataset only reports one aggregate accuracy figure, rather than results for each test city.Second, most studies still **classify each pixel or grid on its own**. This ignores the fact that urban villages cluster together in space, and spatial graph models that could use this clustering are absent from the reviewed work. Thirdly, **the imbalanced original data** is always ignored. Urban villages usually cover only 1–2% of the urban area. This is rarely treated as a core problem, so a high overall accuracy can still hide poor recall on the village class. Fourth, even the latest cross-city deep-learning methods (Zhang et al., 2024; Lin et al., 2025; Yao et al., 2025) **still need hand-labelled training data for every new city**. It remains unclear whether free, public weak signals could replace manual annotation altogether.
 
-These four structural gaps—single-city evaluation, missing spatial inductive bias, unhandled class imbalance, and persistent dependence on manual labelling—together define the methodological space this project occupies, and motivate the specific research gaps set out below.
+These four structural gaps—single-city evaluation, missing spatial inductive bias, unhandled data imbalance, and persistent dependence on manual labelling—together define the methodological space this project occupies, and motivate the specific research gaps set out below.
 
 ## **3. Current research gap**
 
-1.  Despite the scale of the phenomenon, urban villages remain comparatively understudied, and the first comprehensive review of urban-village mapping in China appeared only recently (Cao et al., 2025).
-2.  Chinese urban villages differ fundamentally from the classical slums of other developing countries: built on collectively owned rural land, they are a deliberate product of the dual land system rather than illegal squatting, which makes them an institutionally distinct and more complex phenomenon (Zhang, 2011).
-3.  Methods developed for this setting have wider relevance, because informal and inadequate settlements are growing fastest across the rapidly urbanising Global South, particularly in Asia and sub-Saharan Africa (UN-Habitat, 2022).
-4.  There is still no unified definition of, or consensus method for, identifying urban villages, owing to persistent conceptual fuzziness and their spatial heterogeneity across cities (Cao et al., 2025).
-5.  Existing mapping studies are largely confined to single cities or single images (e.g. Pan et al., 2020), and large-scale, cross-city benchmarks have only begun to emerge (Yao et al., 2025); the cross-city transferability of identification approaches therefore remains largely untested.
+i.  Despite the scale of the phenomenon, urban villages remain comparatively understudied, and the first comprehensive review of urban-village mapping in China appeared only recently.
+
+ii.  Chinese urban villages differ fundamentally from the classical slums of other developing countries: built on collectively owned rural land, they are a deliberate product of the dual land system rather than illegal squatting, which makes them an institutionally distinct and more complex phenomenon (Zhang, 2011).
+
+iii.  Methods developed for this setting have wider relevance, because informal and inadequate settlements are growing fastest across the rapidly urbanising Global South, particularly in Asia and sub-Saharan Africa (UN-Habitat, 2022).
+
+iv.  There is still no unified definition of, or consensus method for, identifying urban villages, owing to persistent conceptual fuzziness and their spatial heterogeneity across cities.
+
+v.  Existing mapping studies are largely confined to single cities or single images (e.g. Pan et al., 2020), and large-scale, cross-city benchmarks have only begun to emerge (Yao et al., 2025); the cross-city transferability of identification approaches therefore remains largely untested.
 
 ## **4. Research Question**
 
 Building on the gaps above, this project asks one main question:
 
-> **Can free, public satellite data combined with weak OSM supervision deliver a transferable urban-village classifier across multiple Chinese cities, without any manual annotation?**
+> **Can free, public satellite data combined with weak OSM supervision deliver a transferable urban-village classifier across 10 Chinese cities, without any manual annotation?**
 
-This is broken down into four sub-questions:
+This is broken down into two sub-questions:
 
 1. **Signal** — Can multi-source Earth observation (Sentinel-1 SAR, Sentinel-2 optical and texture, and built-up context) separate urban villages from formal built-up areas and urban green at the 250 m grid scale?
 2. **Models** — How do four machine-learning families (Random Forest, XGBoost, GraphSAGE, Gaussian Process) compare on this task, and does adding spatial structure (a graph) improve detection?
-3. **Transferability** — Does a classifier trained on a subset of cities generalise to unseen, held-out cities?
-4. **Trust** — How well-calibrated and interpretable are the resulting predictions?
 
 ## **5. Data, Justify of the AOI selection and Platform Used**
 
 ### 5.1 City selection:
 
-10 Cities: 4 first tier cities: Beijing, Shanghai, Guangzhou, Shenzhen. 6 second tier cities: Tianjin, Chongqing, Wuhan, Chengdu, Xi'an, Dongguan.
+10 Cities: 
+
+4 first tier cities: Beijing, Shanghai, Guangzhou, Shenzhen. 
+
+6 second tier cities: Tianjin, Chongqing, Wuhan, Chengdu, Xi'an, Dongguan.
 
 Train Test Split: 60%- 40% Test city includes different cities.
 
