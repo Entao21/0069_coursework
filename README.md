@@ -1,4 +1,25 @@
+<a id="top"></a>
+
 # **Evaluating the potential of multiple machine learning approaches for low-cost remote-sensing-only detection of Chinese urban villages**
+
+## **Contents**
+
+1. [Project Overview and Background Information](#1-project-overview-and-background-information)
+2. [Existing Literature Review](#2-existing-literature-review)
+3. [Current Research Gap](#3-current-research-gap)
+4. [Research Question](#4-research-question)
+5. [Data, Justification of the AOI Selection and Platform Used](#5-data-justification-of-the-aoi-selection-and-platform-used)
+6. [Methods](#6-methods)
+7. [Results](#7-results)
+8. [How to Use this and Repository Structure](#8-how-to-use-this-and-repository-structure)
+9. [Environmental Cost Assessment](#9-environmental-cost-assessment)
+10. [Discussion and Limitations](#10-discussion-and-limitations)
+11. [Future Work](#11-future-work)
+12. [Conclusion](#12-conclusion)
+- [References](#references)
+- [Contact](#contact)
+- [Acknowledgement](#acknowledgement)
+- [Generative AI Statement](#generative-ai-statement)
 
 ## **1. Project Overview and Background Information**
 
@@ -34,6 +55,8 @@ Field surveys and manual digitisation can identify urban villages accurately, bu
 
 Separating urban villages from formal built-up areas is not a simple threshold problem. The distinction emerges only from subtle, non-linear combinations of many weak signals, such as SAR backscatter, SWIR texture, vegetation indices and urban context, which also vary from city to city. Machine learning is well suited to this setting because it can learn these high-dimensional, non-linear feature interactions directly from data, rather than relying on hand-crafted rules. It also supports cross-city generalisation, precisely the scalability and transferability that current urban-village mapping still lacks.
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **2. Existing Literature Review:**
 
 Although urban villages are an established topic in urban planning and social science, the remote-sensing literature devoted to mapping them is suprisingly thin. The most recent systematic review, by Cao et al. (2025), records fewer than fifty peer-reviewed remote-sensing studies on Chinese urban villages across roughly two decades, with annual publication volume rarely exceeding five papers per year (Cao et al., 2025). 
@@ -62,6 +85,8 @@ Looking across all three families, and at the wider slum literature (Kuffer et a
 
 These four structural gaps—single-city evaluation, missing spatial inductive bias, unhandled data imbalance, and persistent dependence on manual labelling—together define the methodological space this project occupies, and motivate the specific research gaps set out below.
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **3. Current research gap**
 
 i.  Despite the scale of the phenomenon, urban villages remain comparatively understudied, and the first comprehensive review of urban-village mapping in China appeared only recently.
@@ -74,6 +99,8 @@ iv.  There is still no unified definition of, or consensus method for, identifyi
 
 v.  Existing mapping studies are largely confined to single cities or single images (e.g. Pan et al., 2020), and large-scale, cross-city benchmarks have only begun to emerge (Yao et al., 2025); the cross-city transferability of identification approaches therefore remains largely untested.
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **4. Research Question**
 
 Building on the gaps above, this project asks one main question:
@@ -84,6 +111,8 @@ This is broken down into two sub-questions:
 
 1. **Signal** — Can multi-source Earth observation (Sentinel-1 SAR, Sentinel-2 optical and texture, and built-up context) separate urban villages from formal built-up areas and urban green at the 250 m grid scale?
 2. **Models** — How do four machine-learning families (Random Forest, XGBoost, GraphSAGE, Gaussian Process) compare on this task, and does adding spatial structure (a graph) improve detection?
+
+<p align="right"><a href="#top">↑ Back to top</a></p>
 
 ## **5. Data, Justification of the AOI selection and Platform Used**
 
@@ -135,6 +164,8 @@ The project uses three free-tier platforms.
 | **Geofabrik** | One-time China-wide OSM PBF download (~1.5 GB), cached on Drive |
 
 No commercial imagery, no paid compute, and no manual annotation is used at any stage.
+
+<p align="right"><a href="#top">↑ Back to top</a></p>
 
 ## **6. Methods**
 
@@ -241,6 +272,8 @@ The notebook also computes reliability curves and Expected Calibration Error (EC
 
 The Gaussian Process subsample classifier achieves macro-F1 = 0.527 and urban-village F1 = 0.061. Its urban-village recall is very high (0.825) but at the cost of an extremely low precision (0.032) — almost every cell the model nominates as a village is wrong. The honest interpretation is that the small balanced subsample forces the GP to predict the minority class confidently in many places where it should not. The GP's value is therefore not its point predictions but the per-grid predictive entropy, which highlights the cells the model is least sure about (see §7.4). The GP is not well calibrated in this final run: its ECE is 0.440, compared with 0.018 for RF and 0.002 for XGBoost.
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **7. Results**
 
 ### 7.1 Headline cross-model comparison
@@ -314,6 +347,8 @@ Aggregating across all four test cities can hide important spatial variation, ev
 
 The full GraphSAGE prediction GeoJSON is too large for normal GitHub version control, so it is not embedded as an image here. A QGIS-rendered PNG should be added to `figures/` if a static map is needed in the final submission.
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **8. How to Use this and Repository Structure**
 
 ### 8.1 How to reproduce
@@ -379,6 +414,8 @@ Colab writes full outputs to `/content/drive/MyDrive/0069/week10/outputs/`. The 
                                                       (ignored by Git except if copied manually)
 ```
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **9. Environmental Cost Assessment**
 
 ### 9.1 Why this section exists, and its link to the UN SDGs
@@ -417,6 +454,8 @@ Even when these four contributors are included, the total project cost almost ce
 
 The headline counter-balance is methodological. The pipeline produces a multi-city urban-village classifier without commissioning any new sub-metre satellite imagery (each km² of which has a non-trivial launch and operations embodied cost) and without commissioning any manual annotation work (each hour of which has its own salaried and infrastructural cost). To the extent that the method scales, it substitutes free public data and ~3 g of training CO₂e for what would otherwise be an open-ended labelling exercise across hundreds of Chinese cities.
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **10. Discussion and Limitations**
 
 ### 10.1 What the project shows, and what it does not
@@ -436,6 +475,8 @@ Directly comparable numbers are not available, because, as §2 noted, no publish
 3. **The "ambiguous" class is large.** About 60 % of all grids in the urban-context AOI fail to meet any of the three rule clauses and are dropped from training. Some of these are real urban villages that the rule simply cannot describe; the project does not quantify how many.
 
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **11. Future Work**
 
 Three directions would extend this project usefully.
@@ -446,9 +487,13 @@ The second is **graph-aware sampling under imbalance**. GraphSMOTE (Zhao et al.,
 
 The third is **a finer-resolution boundary layer**. Due to the computational power limit from my free google account, the current pipeline classifies at 250 m, which is appropriate for *location* but too coarse for *boundary*. A second-stage pipeline that takes each "village" grid identified by GraphSAGE and refines its boundary using S2 10 m NDBI and SAR texture would produce maps directly usable by urban planners.
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **12. Conclusion**
 
 The motivating question of this project was whether free public satellite data combined with weak OpenStreetMap supervision can produce a transferable urban-village classifier across Chinese cities without commissioning any new imagery, any new annotation, or any paid compute. The answer is a qualified *yes*. GraphSAGE on a 250 m grid graph trained against a three-class weak-label rule reaches macro-F1 = 0.858 and urban-village F1 = 0.580 on four held-out cities (Dongguan, Shanghai, Chengdu, Wuhan), a 3.4× lift over the tabular Random Forest and XGBoost baselines on the same data. The result is not a deployment-ready map: the absolute accuracy is bounded by weak-label noise and the residual class imbalance. But it is the first reproducible cross-city evidence in this literature that *spatial message-passing on a graph* is the inductive bias the urban-village classification problem actually needs, and that this signal can be captured without any manual annotation step. The wider methodological lesson — that the four recurrent gaps identified in §2 (single-city evaluation, missing spatial inductive bias, unhandled class imbalance, and dependence on manual labelling) can be addressed simultaneously rather than one at a time — is the principal contribution of this work.
+
+<p align="right"><a href="#top">↑ Back to top</a></p>
 
 ## **References**
 
@@ -504,15 +549,23 @@ Zhao, L., Ren, H., Cui, C. and Huang, Y. (2020) 'A partition-based detection of 
 
 Zhao, T., Zhang, X. and Wang, S. (2021) 'GraphSMOTE: Imbalanced node classification on graphs with graph neural networks', in *Proceedings of the 14th ACM International Conference on Web Search and Data Mining (WSDM '21)*, pp. 833–841. Available at: https://doi.org/10.1145/3437963.3441720 (Accessed: 31 May 2026).
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **Contact**
 Author: Entao Wang
 Email: zcfaew0@ucl.ac.uk
 Institution: Centre for Advanced Spatial Analysis, UCL Bartlett Faculty of the Built Environment
 
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
 ## **Acknowledgement**
 Many thanks to everyone who contributed to this course. Thanks to Dr. Michel for leading this module, giving me this opportunity to participate and thanks to Weibin and Shambhu for their hard work. 
+
+<p align="right"><a href="#top">↑ Back to top</a></p>
 
 ## **Generative AI Statement**
 Cursor (https://cursor.com/) was used as an assistive tool during this project. It supported code debugging, helped refine parts of the code, and was also used for wording improvements, grammar checking, and typo correction.
 
 All research design, literature review, methodological development, notebook construction, and result interpretation were completed independently.
+
+<p align="right"><a href="#top">↑ Back to top</a></p>
