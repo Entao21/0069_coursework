@@ -1,10 +1,11 @@
 <a id="top"></a>
 
-# **Evaluating the potential of multiple machine learning approaches for low-cost remote-sensing-only detection of Chinese urban villages**
+# **Which Method of Machine Learning is the Best? Evaluating the potential of multiple machine learning approaches for low-cost remote-sensing-only detection of Chinese urban villages**
 
 ## **Contents**
 
-1. [Project Overview and Background Information](#1-project-overview-and-background-information)
+- [Project Overview](#project-overview)
+1. [Background Information](#1-background-information)
 2. [Existing Literature Review](#2-existing-literature-review)
 3. [Current Research Gap](#3-current-research-gap)
 4. [Research Question](#4-research-question)
@@ -21,7 +22,13 @@
 - [Acknowledgement](#acknowledgement)
 - [Generative AI Statement](#generative-ai-statement)
 
-## **1. Project Overview and Background Information**
+## **Project Overview**
+
+This project tests whether Chinese urban villages — dense, informal settlements that are difficult to map yet central to current urban-renewal policy — can be detected from free satellite data alone, without any manual labelling. Using only Sentinel-1 SAR, Sentinel-2 optical and texture, and ESA WorldCover context, it builds a 250 m grid across ten cities and derives weak training labels automatically from OpenStreetMap. Four machine-learning families (Random Forest, XGBoost, GraphSAGE and a Gaussian Process) are then compared under a strict six-city-train / four-city-test split, so accuracy is always measured on entirely unseen cities. The central aim is to establish whether such a low-cost, annotation-free pipeline can transfer across cities.
+
+<p align="right"><a href="#top">↑ Back to top</a></p>
+
+## **1. Background Information**
 
 Accompanied by the rapid urbanization process across the world, the inequality of development within modern cities is outstanding. The classical urban model, in which a central business district (CBD) is surrounded by a deteriorating inner 'zone of transition' or slum, was first set out by Burgess back in 1925. However, after 21st century, the skyrocketing growth rate of countless Global South countries has added new layers to that model. This is especially true in China, one of the fastest growing countries, which has lifted close to 800 million people out of extreme poverty over the past four decades (World Bank, 2022) and where 66.16% of the total population was living in cities by the end of 2023 (National Bureau of Statistics of China, 2024). Throughout this transformation, the inequality within cities has been comparatively neglected and not focused on.
 
@@ -171,17 +178,67 @@ No commercial imagery, no paid compute, and no manual annotation is used at any 
 
 The pipeline is organised as one preprocessing notebook and five computational books. The relationship between them is shown in the master flow chart below.
 
-[*Figure: master flow chart of the 5-book pipeline*]
+```mermaid
+flowchart LR
+    PP["**Pre-process**<br/>district-level<br/>AOI selection"]
+    B0["**Book 0**<br/>OSM weak-label<br/>source extraction"]
+    B1["**Book 1**<br/>GEE feature<br/>export · 250 m grid"]
+    B2["**Book 2**<br/>RF + XGBoost<br/>3-class · SMOTE · SHAP"]
+    B3["**Book 3**<br/>GraphSAGE<br/>kNN graph · k=8"]
+    B4["**Book 4**<br/>Gaussian Process<br/>uncertainty · calibration"]
+    OUT(["**Cross-model results**<br/>metrics · maps · figures"])
+
+    PP --> B0
+    PP --> B1
+    B0 --> B2
+    B1 --> B2
+    B2 --> B3
+    B2 --> B4
+    B3 --> OUT
+    B4 --> OUT
+
+    classDef data fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#0D47A1
+    classDef model fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px,color:#4A148C
+    classDef out fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20
+    class PP,B0,B1 data
+    class B2,B3,B4 model
+    class OUT out
+```
+***Figure: Master flow chart of the five-book pipeline.** Pre-process plus Book 0 and Book 1 build the data layer. Book 2 produces the three-class weak labels and tabular baselines. Book 3 (GraphSAGE) and Book 4 (Gaussian Process + cross-model comparison) extend it.*
 
 The first three stages (preprocess, Book 0, Book 1) build the data layer. The remaining three (Book 2, Book 3, Book 4) train and interpret the four machine-learning models.
 
 ### 6.1 Preprocessing — district-level AOI selection
 
-[*Figure: preprocess flow chart*]
+```mermaid
+flowchart TB
+    A[("**CHN_level3_2024.shp**<br/>2853 districts nationwide")]
+    A --> B["Filter by 6-digit code 区划码<br/>retain 10 target prefectures"]
+    B --> C(["**153 candidate districts**"])
+    C --> D["Sample ESA WorldCover v200<br/>via GDAL /vsicurl/ (no GEE auth)"]
+    D --> E["Compute built-up fraction<br/>class 50 / valid pixels per district"]
+    E --> F{"built-up fraction<br/>≥ 0.20 ?"}
+    F -- yes --> G(["**84 retained districts**"])
+    F -- no --> X["drop district"]
+    G --> O[("**urban_cores_by_builtup.geojson**<br/>+ summary CSV<br/>+ sanity-check map")]
+
+    classDef input fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#0D47A1
+    classDef process fill:#F5F5F5,stroke:#424242,stroke-width:2px,color:#212121
+    classDef decision fill:#FFF9C4,stroke:#F57F17,stroke-width:2px,color:#E65100
+    classDef interim fill:#E1F5FE,stroke:#0277BD,stroke-width:2px,color:#01579B
+    classDef output fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20
+
+    class A input
+    class B,D,E,X process
+    class C,G interim
+    class F decision
+    class O output
+```
+***Figure: Pre-process flow chart.** Nationwide GADM L3 districts are filtered down to those with WorldCover built-up fraction ≥ 0.20, producing a tight AOI that both Book 0 and Book 1 then share.*
 
 #### 6.1.1 Procedure
 
-The notebook `pre-process/prepare_urban_aoi_from_gadm_l3.ipynb` performs four steps. It loads the `CHN_level3_2024.shp` county/district boundary file (2853 districts nationwide), filters by the 6-digit national administrative code to retain only districts inside the ten target prefectures, samples ESA WorldCover v200 directly from its public S3 bucket via GDAL `/vsicurl/` (no Earth Engine authentication required), and computes the built-up fraction (WorldCover class 50 over total valid pixels) for each district. Districts with built-up fraction >= 0.20 are retained. The 0.20 threshold deliberately includes urban-fringe districts where urban villages tend to cluster.
+Not all district within a city's range is well-developed and dominated by built-up area. The notebook `pre-process/prepare_urban_aoi_from_gadm_l3.ipynb` performs four steps. It loads the `CHN_level3_2024.shp` county/district boundary file (2853 districts nationwide), filters by the 6-digit national administrative code to retain only districts inside the ten target prefectures, samples ESA WorldCover v200 directly from its public S3 bucket via GDAL `/vsicurl/` (no Earth Engine authentication required), and computes the built-up fraction (WorldCover class 50 over total valid pixels) for each district. Districts with built-up fraction >= 0.20 are retained. The 0.20 threshold deliberately includes urban-fringe districts where urban villages tend to cluster.
 
 #### 6.1.2 Outcome
 
@@ -195,7 +252,37 @@ The script writes the kept districts to three formats: a GeoJSON (`urban_cores_b
 
 ### 6.2 Book 0 — OSM weak-label source extraction
 
-[*Figure: Book 0 flow chart*]
+```mermaid
+flowchart TB
+    A1[("**urban_cores_by_builtup.geojson**<br/>84 polygons · 10 cities")]
+    A2[("**Geofabrik snapshot**<br/>china-latest.osm.pbf · ~1.5 GB<br/>downloaded once, cached on Drive")]
+
+    A1 --> C["**osmium-tool extract**<br/>per-city PBF using polygon bbox"]
+    A2 --> C
+    C --> D["**pyrosm** parses per-city PBF"]
+
+    D --> Q1["Query 1<br/>place = village / hamlet / locality"]
+    D --> Q2["Query 2<br/>residential = rural"]
+    D --> Q3["Query 3<br/>highway = *"]
+
+    Q1 --> E["Spatial clip<br/>to urban-core polygon"]
+    Q2 --> E
+    Q3 --> E
+
+    E --> O1[("**osm_candidates/<br/>&lcub;city&rcub;_candidates.geojson**")]
+    E --> O2[("**osm_roads/<br/>&lcub;city&rcub;_roads.geojson**")]
+
+    classDef input fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#0D47A1
+    classDef process fill:#F5F5F5,stroke:#424242,stroke-width:2px,color:#212121
+    classDef query fill:#FFF3E0,stroke:#E65100,stroke-width:2px,color:#BF360C
+    classDef output fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20
+
+    class A1,A2 input
+    class C,D,E process
+    class Q1,Q2,Q3 query
+    class O1,O2 output
+```
+***Figure: Book 0 flow chart.** A single offline PBF feeds three OSM queries per city. The polygon-clip step at the end matches Book 0 coverage exactly to Book 1's grid coverage, so that no Book 1 grid in Book 2 will be left without nearby OSM.*
 
 #### 6.2.1 Procedure
 
@@ -209,7 +296,41 @@ For each city, two GeoJSON files are written: `osm_candidates/{city}_candidates.
 
 ### 6.3 Book 1 — Google Earth Engine feature export
 
-[*Figure: Book 1 flow chart*]
+```mermaid
+flowchart TB
+    A[("**urban_cores_by_builtup**<br/>uploaded as GEE asset")]
+    A --> B["For each city · local UTM<br/>EPSG 32648 / 32649 / 32650 / 32651"]
+    B --> C["Build 250 m grid<br/>over urban-core polygon"]
+
+    C --> F1["**Sentinel-2 annual**<br/>B2,3,4,8,11,12<br/>+ NDVI / NDBI / NDWI / BSI"]
+    C --> F2["**Sentinel-2 quarterly**<br/>NDVI & NDBI · Q1–Q4<br/>+ quarterly std"]
+    C --> F3["**Sentinel-2 SWIR GLCM**<br/>contrast + entropy · 90 m"]
+    C --> F4["**Sentinel-1 ASC + DESC**<br/>VV / VH + texture<br/>+ has_data flag"]
+    C --> F5["**ESA WorldCover**<br/>built-up · veg · water<br/>+ 1 km circular context"]
+
+    F1 --> G["**reduceRegions** per grid cell<br/>mean + standard deviation"]
+    F2 --> G
+    F3 --> G
+    F4 --> G
+    F5 --> G
+
+    G --> H{"builtup_mean ≥ 0.02<br/>OR urban_context_1km ≥ 0.40 ?"}
+    H -- yes --> K[("**book1_grid_features_&lcub;city&rcub;_2025.csv**<br/>~80 columns · 333 674 grids · 10 CSVs")]
+    H -- no --> X["drop cell"]
+
+    classDef input fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#0D47A1
+    classDef process fill:#F5F5F5,stroke:#424242,stroke-width:2px,color:#212121
+    classDef feature fill:#FFF3E0,stroke:#E65100,stroke-width:2px,color:#BF360C
+    classDef decision fill:#FFF9C4,stroke:#F57F17,stroke-width:2px,color:#E65100
+    classDef output fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20
+
+    class A input
+    class B,C,G,X process
+    class F1,F2,F3,F4,F5 feature
+    class H decision
+    class K output
+```
+***Figure: Book 1 flow chart.** Five feature groups are computed inside Google Earth Engine, reduced to a 250 m grid in each city's local UTM projection, and exported as one CSV per city.*
 
 #### 6.3.1 Procedure
 
@@ -230,7 +351,45 @@ One CSV per city is exported to Google Drive, named `book1_grid_features_<city>_
 
 ### 6.4 Book 2 — Three-class weak labels, RF and XGBoost
 
-[*Figure: Book 2 flow chart*]
+```mermaid
+flowchart TB
+    A1[("**Book 0**<br/>OSM candidates + roads<br/>10 cities")]
+    A2[("**Book 1**<br/>EO feature CSVs<br/>10 cities · 333 674 grids")]
+
+    A1 --> B["Spatial join<br/>OSM → 250 m grid centroids"]
+    A2 --> B
+    B --> R["**3-class weak-label rule**<br/>0 green · 1 normal · 2 village · −1 ambiguous"]
+    R --> CC(["Class proportions<br/>**green 8.8% · normal 90.1% · village 1.1%**<br/>82 : 1 imbalance"])
+
+    CC --> D["**Drop leaky OSM columns**<br/>dist_to_osm_candidate_m<br/>+ osm_candidate_overlap"]
+    D --> E["Cross-city split<br/>**6 train · 4 test**"]
+
+    E --> F["**SMOTE on training only**<br/>village 1 043 → 10 000<br/>green 6 229 → 15 000"]
+
+    F --> G1["**Random Forest**<br/>class_weight = balanced"]
+    F --> G2["**XGBoost**<br/>objective = multi:softprob"]
+
+    G1 --> H["Evaluate on 4 test cities"]
+    G2 --> H
+
+    H --> O1[("metrics tables · 3×3 confusion<br/>**7-step feature ablation**<br/>**per-class SHAP**")]
+    H --> O2[("**book2_rf_predictions.geojson**<br/>**book2_xgb_predictions.geojson**")]
+
+    classDef input fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#0D47A1
+    classDef process fill:#F5F5F5,stroke:#424242,stroke-width:2px,color:#212121
+    classDef rule fill:#FFF3E0,stroke:#E65100,stroke-width:2px,color:#BF360C
+    classDef interim fill:#E1F5FE,stroke:#0277BD,stroke-width:2px,color:#01579B
+    classDef model fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px,color:#4A148C
+    classDef output fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20
+
+    class A1,A2 input
+    class B,D,E,F,H process
+    class R rule
+    class CC interim
+    class G1,G2 model
+    class O1,O2 output
+```
+***Figure: Book 2 flow chart.** Three-class weak labels are constructed from the joined OSM + EO features, leaky OSM columns are explicitly removed from X to prevent label leakage, SMOTE rebalances the training cities, and the two tabular models are trained and evaluated cross-city.*
 
 #### 6.4.1 Procedure
 
@@ -244,25 +403,86 @@ Third, class imbalance is handled explicitly. The training set is resampled with
 
 #### 6.4.2 Outcome
 
-The headline metrics on the four held-out test cities are macro-F1 = 0.721 for Random Forest and macro-F1 = 0.719 for XGBoost, with urban-village F1 of 0.169 and 0.163 respectively. These results use SMOTE on the training cities only, while the held-out test cities remain untouched. The ablation results, the SHAP plots and the 3 × 3 confusion matrices are saved under `output/` and are reproduced in Section 7.
+The headline metrics on the four held-out test cities are macro-F1 = 0.721 for Random Forest and macro-F1 = 0.719 for XGBoost, with urban-village F1 of 0.169 and 0.163 respectively. These results use SMOTE on the training cities only, while the held-out test cities remain untouched. The ablation results, the SHAP plots and the 3 × 3 confusion matrices are saved under `output/` and are shown in Section 7.
 
 ### 6.5 Book 3 — GraphSAGE graph neural network
 
-[*Figure: Book 3 flow chart*]
+```mermaid
+flowchart TB
+    A[("**Book 2 labelled grids**<br/>127 899 nodes · 10 cities<br/>+ feature_cols.json")]
+    A --> B["**Build kNN graph per city**<br/>k = 8 · intra-city edges only<br/>≈ 2.05 M directed edges"]
+    B --> C["Cross-city split<br/>**5 train · Beijing val · 4 test**"]
+
+    C --> D["**2-layer GraphSAGE** (pure PyTorch)<br/>x → SAGE₁ → ReLU + dropout<br/>→ SAGE₂ → ReLU + dropout<br/>→ Linear → 3-class logits"]
+
+    D --> E["**Train 300 epochs**<br/>CrossEntropy · class weights [13.0, 1.1, 75.8]<br/>AdamW lr = 3 × 10⁻³<br/>best-on-val checkpoint"]
+
+    E --> G["Evaluate on 4 test cities"]
+
+    G --> O1[("**macro F1 = 0.858**<br/>**urban-village F1 = 0.580**<br/>3×3 confusion matrix")]
+    G --> O2[("**book3_graphsage_predictions.geojson**<br/>training history CSV")]
+
+    classDef input fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#0D47A1
+    classDef process fill:#F5F5F5,stroke:#424242,stroke-width:2px,color:#212121
+    classDef model fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px,color:#4A148C
+    classDef output fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20
+
+    class A input
+    class B,C,G process
+    class D,E model
+    class O1,O2 output
+```
+***Figure: Book 3 flow chart.** A per-city kNN graph carries the spatial signal that the tabular models cannot use. Class weights handle the 1.1% village prevalence inside the loss rather than via resampling.*
 
 #### 6.5.1 Procedure
 
-The notebook `book3_gnn/book3_final.ipynb` reads the labelled grids produced by Book 2 and constructs a per-city k-nearest-neighbour graph (k = 8) using each grid's centroid in longitude / latitude. Edges are built within a city only; no edge crosses a city boundary, which would otherwise leak test-city structure into the training cities. The result is roughly **2.05 million directed edges** on 127,899 nodes.
+The notebook `book3_gnn/book3_final.ipynb` reads the labelled grids produced by Book 2 and constructs a per-city k-nearest-neighbour graph (k = 8) using each grid's centroid in longitude / latitude. Edges are built within a city only, and no edge crosses a city boundary, which would otherwise leak test-city structure into the training cities. The result is roughly 2.05 million directed edges on 127,899 nodes.
 
-The model is a two-layer GraphSAGE implemented in pure PyTorch (no PyTorch Geometric, to avoid Colab installation friction). Each layer concatenates a node's own features with the mean of its k = 8 neighbours' features and applies a linear projection. The classifier head is a linear layer producing three logits. Training uses cross-entropy with inverse-frequency class weights [13.0, 1.1, 75.8] for [green, normal, village], the AdamW optimiser (lr = 3 × 10⁻³), 300 epochs, and best-on-validation checkpoint selection using Beijing as the inner validation city.
+The model is a two-layer GraphSAGE implemented in pure PyTorch. Each layer concatenates a node's own features with the mean of its k = 8 neighbours' features and applies a linear projection. The classifier head is a linear layer producing three logits. Training uses cross-entropy with inverse-frequency class weights [13.0, 1.1, 75.8] for [green, normal, village], the AdamW optimiser (lr = 3 × 10⁻³), 300 epochs, and best-on-validation checkpoint selection using Beijing as the inner validation city.
 
 #### 6.5.2 Outcome
 
-GraphSAGE achieves macro-F1 = 0.858 and **urban-village F1 = 0.580** on the four held-out test cities, with urban-village precision at 0.489 and recall at 0.715. This is a 3.4x improvement over the Random Forest baseline. The trained model, the training history, the 3 × 3 confusion matrix and the per-grid prediction GeoJSON (with per-class probabilities and predictive entropy) are written to `output/`.
+GraphSAGE achieves macro-F1 = 0.858 and urban-village F1 = 0.580 on the four held-out test cities, with urban-village precision at 0.489 and recall at 0.715. This is a 3.4x improvement over the Random Forest baseline. The trained model, the training history, the 3 × 3 confusion matrix and the per-grid prediction GeoJSON (with per-class probabilities and predictive entropy) are written to `output/`.
 
-### 6.6 Book 4 — Gaussian Process uncertainty and calibration
+### 6.6 Book 4 — Gaussian Process 
 
-[*Figure: Book 4 flow chart*]
+```mermaid
+flowchart TB
+    A1[("**Book 2 labelled grids**<br/>+ feature_cols.json")]
+    A2[("**Book 2 prediction GeoJSONs**<br/>RF · XGBoost")]
+    A3[("**Book 3 prediction GeoJSON**<br/>GraphSAGE")]
+
+    A1 --> B["**Stratified subsample**<br/>700 per class × 3 = 2 100 grids"]
+
+    B --> C["**Gaussian Process Classifier**<br/>fixed RBF kernel<br/>one-vs-rest multi-class"]
+
+    C --> D["Predict on 4 test cities<br/>per-class probability<br/>+ predictive entropy"]
+
+    D --> E1[("**book4_gp_predictions.geojson**<br/>uncertainty map")]
+
+    D --> F["**Cross-model comparison**"]
+    A2 --> F
+    A3 --> F
+
+    F --> G1["Per-class precision / recall / F1<br/>across 4 models"]
+    F --> G2["Reliability curves<br/>+ Expected Calibration Error"]
+    F --> G3["Precision-recall scatter<br/>with F1 isoclines"]
+
+    G1 --> O[("**book4_model_comparison_*.csv**<br/>**book4_reliability_diagram.png**<br/>**book4_pr_scatter.png**")]
+    G2 --> O
+    G3 --> O
+
+    classDef input fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#0D47A1
+    classDef process fill:#F5F5F5,stroke:#424242,stroke-width:2px,color:#212121
+    classDef model fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px,color:#4A148C
+    classDef output fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20
+
+    class A1,A2,A3 input
+    class B,D,F,G1,G2,G3 process
+    class C model
+    class E1,O output
+```
+***Figure: Book 4 flow chart.** The Gaussian Process is trained on a balanced subsample to deliver predictive entropy as a per-grid uncertainty layer, and then becomes the cross-model comparison hub that consumes RF, XGBoost and GraphSAGE prediction maps to produce calibration and precision-recall figures.*
 
 #### 6.6.1 Procedure
 
@@ -272,7 +492,7 @@ The notebook also computes reliability curves and Expected Calibration Error (EC
 
 #### 6.6.2 Outcome
 
-The Gaussian Process subsample classifier achieves macro-F1 = 0.527 and urban-village F1 = 0.061. Its urban-village recall is very high (0.825) but at the cost of an extremely low precision (0.032) — almost every cell the model nominates as a village is wrong. The honest interpretation is that the small balanced subsample forces the GP to predict the minority class confidently in many places where it should not. The GP's value is therefore not its point predictions but the per-grid predictive entropy, which highlights the cells the model is least sure about (see §7.4). The GP is not well calibrated in this final run: its ECE is 0.440, compared with 0.018 for RF and 0.002 for XGBoost.
+The Gaussian Process subsample classifier achieves macro-F1 = 0.527 and urban-village F1 = 0.061. Its urban-village recall is very high (0.825) but at the cost of an extremely low precision (0.032) — almost every cell the model nominates as a village is wrong. The honest interpretation is that the small balanced subsample forces the GP to predict the minority class confidently in many places where it should not. The GP's value is therefore not its point predictions but the per-grid predictive entropy, which highlights the cells the model is least sure about (see section 7.4). The GP is not well calibrated in this final run: its ECE is 0.440, compared with 0.018 for RF and 0.002 for XGBoost.
 
 <p align="right"><a href="#top">↑ Back to top</a></p>
 
@@ -347,21 +567,13 @@ The full feature set (S2 annual + quarterly + GLCM SWIR texture + S1 ASC and DES
 
 GraphSAGE recovers 258 of the 361 true urban-village grids (village recall 0.715) at a precision of 0.489, which is a 3.4x lift in F1 over Random Forest. The confusion matrix shows that the dominant error mode is *false positives in the normal-built-up class*: 270 normal grids are classified as urban village, not the other way around. This is the right direction of error for a deployment scenario in which a human verifier is willing to inspect candidate grids in the field — false positives can be filtered downstream, false negatives cannot.
 
-The training history (saved in the Colab output directory as `book3_graphsage_training_history_*.csv`) shows the model converging steadily: village-class F1 rises from 0.135 at epoch 25 to 0.580 at epoch 300, with validation-city macro-F1 plateauing around epoch 275. The inner validation city (Beijing) prevents the test cities from being used for early stopping.
+The training history (saved in the Colab output directory as `book3_graphsage_training_history_*.csv`) shows the model converging steadily. Village-class F1 rises from 0.135 at epoch 25 to 0.580 at epoch 300, with validation-city macro-F1 plateauing around epoch 275. The inner validation city (Beijing) prevents the test cities from being used for early stopping.
 
 ### 7.4 Gaussian Process result and uncertainty (Book 4)
 
-The Gaussian Process classifier trained on a stratified 2 100-grid subsample produces a probability and entropy estimate for every test grid, but its probabilities are not well calibrated in the final run. Its point-classification performance is weak (macro-F1 = 0.527, village-F1 = 0.061), because the balanced subsample inflates the prior on the village class and the model accordingly over-predicts villages everywhere. This is, however, the *expected* trade-off when an algorithm with O(n³) cost is forced to use a tiny stratified sample.
+The Gaussian Process classifier trained on a stratified 2 100-grid subsample produces a probability and entropy estimate for every test grid, but its probabilities are not well calibrated in the final run. Its point-classification performance is weak (macro-F1 = 0.527, village-F1 = 0.061), because the balanced subsample inflates the prior on the village class and the model accordingly over-predicts villages everywhere. This is, however, the expected trade-off when an algorithm with O(n³) cost is forced to use a tiny stratified sample.
 
-The interesting GP output is therefore not the point classification but the **per-grid predictive entropy**. Entropy is highest in two characteristic locations: at the boundary between dense formal residential compounds and the urban-village fabric they have grown around, and in industrial / port-side grids where the spectral signature is ambiguous. These are precisely the grids on which a human reviewer should focus. The map is intended to be inspected interactively in QGIS rather than read as a printed figure.
-
-The calibration outputs (`book4_calibration_ece_*.csv` and `book4_reliability_bins_*.csv`) record the reliability analysis in the Colab output directory. The main performance comparison is assembled from the metric CSVs written by Books 2, 3 and 4.
-
-### 7.5 Spatial prediction output
-
-Aggregating across all four test cities can hide important spatial variation, even when a formal per-city metric table is not produced. Book 3 therefore exports a grid-level GraphSAGE prediction CSV and GeoJSON containing each cell's city name, weak label, predicted class, per-class probabilities and predictive entropy. This output allows the held-out cities to be inspected independently in QGIS.
-
-The full GraphSAGE prediction GeoJSON is too large for normal GitHub version control, so it is not embedded as an image here. A QGIS-rendered PNG should be added to `figures/` if a static map is needed in the final submission.
+The interesting GP output is therefore not the point classification but the per-grid predictive entropy. Entropy is highest in two characteristic locations: at the boundary between dense formal residential compounds and the urban-village fabric they have grown around, and in industrial / port-side grids where the spectral signature is ambiguous. These are precisely the grids on which a human reviewer should focus. The map is intended to be inspected interactively in QGIS rather than read as a printed figure.
 
 <p align="right"><a href="#top">↑ Back to top</a></p>
 
@@ -434,7 +646,7 @@ Colab writes full outputs to `/content/drive/MyDrive/0069/week10/outputs/`. The 
 
 ## **9. Environmental Cost Assessment**
 
-### 9.1 Why this section exists, and its link to the UN SDGs
+### 9.1 This project
 
 A project that maps urban villages in service of UN Sustainable Development Goal 11 (sustainable cities and human settlements) should not be silent about its own carbon cost. SDG 13 (climate action) places this responsibility on any researcher who runs compute. The block below quantifies that cost, places it in everyday terms, and is then honest about what the measurement does not cover.
 
@@ -476,7 +688,7 @@ The headline counter-balance is methodological. The pipeline produces a multi-ci
 
 ### 10.1 What the project shows, and what it does not
 
-The project shows three concrete things. First, that EO-only weak supervision *can* produce a non-trivial cross-city urban-village classifier — GraphSAGE on four held-out cities reaches village-F1 = 0.58, a number that has no published cross-city baseline to compare against. Second, that the choice of model family matters far more than the choice of features once class imbalance is handled. The same Sentinel-1 + Sentinel-2 + WorldCover + OSM-road-density feature stack moves village-F1 from 0.17 (Random Forest) to 0.58 (GraphSAGE) — a 3.4x swing driven entirely by the spatial inductive bias of message-passing on a k-nearest-neighbour graph. Third, that the Gaussian Process experiment is more useful as an uncertainty screen than as a point classifier: it has high recall but poor precision and poor calibration.
+The project shows three concrete things. First, that EO-only weak supervision can produce a non-trivial cross-city urban-village classifier, GraphSAGE on four held-out cities reaches village-F1 = 0.58, a number that has no published cross-city baseline to compare against. Second, that the choice of model family matters far more than the choice of features once class imbalance is handled. The same Sentinel-1 + Sentinel-2 + WorldCover + OSM-road-density feature stack moves village-F1 from 0.17 (Random Forest) to 0.58 (GraphSAGE) — a 3.4x swing driven entirely by the spatial inductive bias of message-passing on a k-nearest-neighbour graph. Third, that the Gaussian Process experiment is more useful as an uncertainty screen than as a point classifier: it has high recall but poor precision and poor calibration.
 
 What the project does *not* show is the absolute accuracy of urban-village mapping against hand-verified ground truth, because no such ground truth was produced. The reported numbers measure agreement against weak labels, not against reality. §10.3 discusses this limitation in detail.
 
