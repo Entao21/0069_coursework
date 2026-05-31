@@ -38,7 +38,9 @@ Separating urban villages from formal built-up areas is not a simple threshold p
 
 Although urban villages are an established topic in urban planning and social science, the remote-sensing literature devoted to mapping them is suprisingly thin. The most recent systematic review, by Cao et al. (2025), records fewer than fifty peer-reviewed remote-sensing studies on Chinese urban villages across roughly two decades, with annual publication volume rarely exceeding five papers per year (Cao et al., 2025). 
 
-! [picture]
+![Figure 1. Annual number of peer-reviewed remote-sensing publications on Chinese urban villages (2011–2024), coloured by disciplinary field. Reproduced from Cao et al. (2025).](figures/cao_et_al_2025.jpg)
+
+*The chart shows how thin and recent this literature is: annual output stays at or below two papers until 2019 and only reaches a modest peak of seven in 2022, with GIS & Remote Sensing (orange) dominating throughout.*
 
 By way of contrast, the broader literature on global slum and informal-settlement mapping reviewed by Kuffer et al. (2016) holds an order of magnitude more entries, and the follow-up critical review by Mahabir et al. (2018) extends this analysis to high- and very-high-resolution approaches. This volume gap is diagnostic rather than coincidental. The Chinese urban village is morphologically much closer to formal built-up fabric than to favela-style slums, so the standard slum-detection pipelines transfer to it only partially, and a parallel domain-specific literature has therefore developed slowly.
 
@@ -154,7 +156,7 @@ The notebook `pre-process/prepare_urban_aoi_from_gadm_l3.ipynb` performs four st
 
 Of 153 districts in the ten target cities, **84 districts are retained** after filtering. The breakdown by city is given in `data/processed/builtup_filtered/urban_cores_by_builtup_summary.csv`, and a per-city sanity-check map is rendered automatically:
 
-![Figure 1. Urban-core AOI sanity-check map showing retained and dropped districts across the ten study cities.](figures/fig01_urban_core_aoi.png)
+![Figure 2. Urban-core AOI sanity-check map showing retained and dropped districts across the ten study cities.](figures/fig01_urban_core_aoi.png)
 
 The script writes the kept districts to three formats: a GeoJSON (`urban_cores_by_builtup.geojson`) consumed by Book 0, a zipped Shapefile uploadable to Google Earth Engine as an asset and consumed by Book 1, and a summary CSV for the report.
 
@@ -260,39 +262,39 @@ The headline comparison is reported as a table because the corresponding CSV met
 
 The two tabular baselines behave almost identically (macro-F1 within 0.003, village-F1 within 0.006). Both reach near-perfect green-class F1 because the green-class rule is the easiest of the three to recover from EO features alone. The bottleneck is the urban-village class. The figures below are read in three groups: first the confusion matrices (where the errors fall), then the per-class SHAP summaries (why the model decides as it does), and finally the feature ablation (which input groups actually carry the signal).
 
-**Where the errors fall — confusion matrices.** Figures 2 and 3 show the 3×3 confusion matrices on the four held-out test cities.
+**Where the errors fall — confusion matrices.** Figures 3 and 4 show the 3×3 confusion matrices on the four held-out test cities.
 
-![Figure 2. Random Forest confusion matrix on the held-out test cities.](figures/fig02_rf_confusion_matrix.png)
+![Figure 3. Random Forest confusion matrix on the held-out test cities.](figures/fig02_rf_confusion_matrix.png)
 
 Random Forest recovers the urban-green class perfectly (5,020 / 5,020) and the normal-built-up class almost perfectly. The whole difficulty sits in the bottom row: of 361 true urban-village grids only 62 are correctly recovered (recall 0.17), 299 leak into normal built-up, and a comparable 311 normal grids are misread as village. The minority class is therefore confused almost exclusively with normal built-up, never with green.
 
-![Figure 3. XGBoost confusion matrix on the held-out test cities.](figures/fig03_xgb_confusion_matrix.png)
+![Figure 4. XGBoost confusion matrix on the held-out test cities.](figures/fig03_xgb_confusion_matrix.png)
 
 XGBoost behaves almost identically: 66 of 361 villages recovered (recall 0.18), 295 lost to normal built-up, and 385 normal grids over-predicted as village. The near-identical pattern confirms that the tabular ceiling is set by the features and weak labels, not by the bagging-versus-boosting choice.
 
-**Why the model decides as it does — SHAP summaries.** Figures 4–6 give the per-class SHAP summaries, with each dot a test grid, its horizontal position the push towards (right) or away from (left) that class, and its colour the underlying feature value (red = high, blue = low).
+**Why the model decides as it does — SHAP summaries.** Figures 5–7 give the per-class SHAP summaries, with each dot a test grid, its horizontal position the push towards (right) or away from (left) that class, and its colour the underlying feature value (red = high, blue = low).
 
-![Figure 4. SHAP summary for the urban-green class in the Random Forest/XGBoost tabular workflow.](figures/fig05_shap_urban_green.png)
+![Figure 5. SHAP summary for the urban-green class in the Random Forest/XGBoost tabular workflow.](figures/fig05_shap_urban_green.png)
 
 For the urban-green class, `builtup_mean` is by far the strongest driver: a low built-up fraction (blue) gives a large positive push towards green, while a high fraction (red) pushes strongly against it. `builtup_stdDev`, `vegetation_mean` and `s2_ndvi_mean` follow, all consistent with green cells being low-density and well vegetated. This is the cleanest, most separable decision of the three.
 
-![Figure 5. SHAP summary for the normal built-up class in the Random Forest/XGBoost tabular workflow.](figures/fig06_shap_normal_built_up.png)
+![Figure 6. SHAP summary for the normal built-up class in the Random Forest/XGBoost tabular workflow.](figures/fig06_shap_normal_built_up.png)
 
 For the normal-built-up class the decision is led by `s2_ndvi_mean`, `builtup_stdDev` and `builtup_mean`, but the SHAP values are smaller and more symmetric than for the green class. This reflects its role as the heterogeneous majority class against which both other classes are contrasted, so no single feature dominates.
 
-![Figure 6. SHAP summary for the urban-village class in the Random Forest/XGBoost tabular workflow.](figures/fig07_shap_urban_village.png)
+![Figure 7. SHAP summary for the urban-village class in the Random Forest/XGBoost tabular workflow.](figures/fig07_shap_urban_village.png)
 
 For the urban-village class `s2_ndvi_mean` dominates again, but in the opposite direction: a very low annual NDVI (blue) is the single strongest signal pushing a cell towards village, reinforced by low quarterly NDVI (`q1`, `q2`). Built-up density and Sentinel-1 descending backscatter (`s1_desc_*`) add secondary support, with `road_density_m_per_km2` contributing further down. This matches the morphological intuition that urban villages are the most vegetation-free, most densely built fabric in the city.
 
-**Which inputs carry the signal — feature ablation.** Figure 7 reports macro-F1 (left) and urban-village F1 (right) as feature groups are added cumulatively.
+**Which inputs carry the signal — feature ablation.** Figure 8 reports macro-F1 (left) and urban-village F1 (right) as feature groups are added cumulatively.
 
-![Figure 7. Feature-ablation result for the tabular model feature groups.](figures/fig04_feature_ablation.png)
+![Figure 8. Feature-ablation result for the tabular model feature groups.](figures/fig04_feature_ablation.png)
 
 The full feature set (S2 annual + quarterly + GLCM SWIR texture + S1 ASC and DESC + WorldCover context + OSM road density) reaches macro-F1 = 0.720, whereas S2 annual alone reaches only 0.609. Macro-F1 rises monotonically as sources are added, with the largest jump coming from WorldCover urban context. The village-class panel is flatter and noisier — every configuration stays near 0.15–0.18 — which again shows that the minority class is the binding constraint and that no single feature group rescues it on its own.
 
 ### 7.3 GraphSAGE results (Book 3)
 
-![Figure 8. GraphSAGE confusion matrix on the held-out test cities.](figures/fig08_graphsage_confusion_matrix.png)
+![Figure 9. GraphSAGE confusion matrix on the held-out test cities.](figures/fig08_graphsage_confusion_matrix.png)
 
 GraphSAGE recovers 258 of the 361 true urban-village grids (village recall 0.715) at a precision of 0.489, which is a 3.4x lift in F1 over Random Forest. The confusion matrix shows that the dominant error mode is *false positives in the normal-built-up class*: 270 normal grids are classified as urban village, not the other way around. This is the right direction of error for a deployment scenario in which a human verifier is willing to inspect candidate grids in the field — false positives can be filtered downstream, false negatives cannot.
 
