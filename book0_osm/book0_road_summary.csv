@@ -1,0 +1,11 @@
+city,n_roads,took_s,status
+guangzhou,105639,128.9,downloaded
+shenzhen,98880,88.8,downloaded
+tianjin,65011,53.8,downloaded
+beijing,129829,108.1,downloaded
+xian,27875,36.8,downloaded
+dongguan,42863,46.0,downloaded
+shanghai,192008,126.6,downloaded
+chengdu,57981,46.0,downloaded
+chongqing,30431,37.0,downloaded
+wuhan,29010,19.5,downloaded

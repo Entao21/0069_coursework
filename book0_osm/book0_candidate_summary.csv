@@ -1,0 +1,11 @@
+city,n_candidates,n_place_pois,n_rural_residential,took_s,status
+guangzhou,409,393,16,128.9,downloaded
+shenzhen,713,674,39,88.8,downloaded
+tianjin,251,250,1,53.8,downloaded
+beijing,1750,1739,11,108.1,downloaded
+xian,263,203,60,36.8,downloaded
+dongguan,711,709,2,46.0,downloaded
+shanghai,417,413,4,126.6,downloaded
+chengdu,132,126,6,46.0,downloaded
+chongqing,111,111,0,37.0,downloaded
+wuhan,57,53,4,19.5,downloaded
