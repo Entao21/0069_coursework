@@ -258,21 +258,37 @@ The headline comparison is reported as a table because the corresponding CSV met
 
 ### 7.2 Random Forest and XGBoost results (Book 2)
 
-The two tabular baselines behave almost identically (macro-F1 within 0.003, village-F1 within 0.006). Both reach near-perfect green-class F1 because the green-class rule is the easiest of the three to recover from EO features alone. The bottleneck is the urban-village class: Random Forest catches 62 of 361 true villages (recall 0.17), XGBoost catches 66 (recall 0.18), and both produce many false positives in the normal-built-up class. SHAP confirms what should be expected: `builtup_mean`, `s2_ndvi_mean` and `builtup_stdDev` dominate the green-vs-rest decision, while `road_density_m_per_km2` and SAR backscatter contribute most to the village-vs-normal decision.
+The two tabular baselines behave almost identically (macro-F1 within 0.003, village-F1 within 0.006). Both reach near-perfect green-class F1 because the green-class rule is the easiest of the three to recover from EO features alone. The bottleneck is the urban-village class. The figures below are read in three groups: first the confusion matrices (where the errors fall), then the per-class SHAP summaries (why the model decides as it does), and finally the feature ablation (which input groups actually carry the signal).
 
-![Figure 2. SHAP summary for the urban-green class in the Random Forest/XGBoost tabular workflow.](figures/fig05_shap_urban_green.png)
+**Where the errors fall — confusion matrices.** Figures 2 and 3 show the 3×3 confusion matrices on the four held-out test cities.
 
-![Figure 3. SHAP summary for the normal built-up class in the Random Forest/XGBoost tabular workflow.](figures/fig06_shap_normal_built_up.png)
+![Figure 2. Random Forest confusion matrix on the held-out test cities.](figures/fig02_rf_confusion_matrix.png)
 
-![Figure 4. SHAP summary for the urban-village class in the Random Forest/XGBoost tabular workflow.](figures/fig07_shap_urban_village.png)
+Random Forest recovers the urban-green class perfectly (5,020 / 5,020) and the normal-built-up class almost perfectly. The whole difficulty sits in the bottom row: of 361 true urban-village grids only 62 are correctly recovered (recall 0.17), 299 leak into normal built-up, and a comparable 311 normal grids are misread as village. The minority class is therefore confused almost exclusively with normal built-up, never with green.
 
-![Figure 5. Feature-ablation result for the tabular model feature groups.](figures/fig04_feature_ablation.png)
+![Figure 3. XGBoost confusion matrix on the held-out test cities.](figures/fig03_xgb_confusion_matrix.png)
 
-![Figure 6. Random Forest confusion matrix on the held-out test cities.](figures/fig02_rf_confusion_matrix.png)
+XGBoost behaves almost identically: 66 of 361 villages recovered (recall 0.18), 295 lost to normal built-up, and 385 normal grids over-predicted as village. The near-identical pattern confirms that the tabular ceiling is set by the features and weak labels, not by the bagging-versus-boosting choice.
 
-![Figure 7. XGBoost confusion matrix on the held-out test cities.](figures/fig03_xgb_confusion_matrix.png)
+**Why the model decides as it does — SHAP summaries.** Figures 4–6 give the per-class SHAP summaries, with each dot a test grid, its horizontal position the push towards (right) or away from (left) that class, and its colour the underlying feature value (red = high, blue = low).
 
-The ablation confirms that the full feature set (S2 annual + quarterly + GLCM SWIR texture + S1 ASC and DESC + WorldCover context + OSM road density) reaches macro-F1 = 0.720, whereas S2 annual alone reaches only 0.609. Each added source contributes monotonically, with the largest jump coming from adding WorldCover context.
+![Figure 4. SHAP summary for the urban-green class in the Random Forest/XGBoost tabular workflow.](figures/fig05_shap_urban_green.png)
+
+For the urban-green class, `builtup_mean` is by far the strongest driver: a low built-up fraction (blue) gives a large positive push towards green, while a high fraction (red) pushes strongly against it. `builtup_stdDev`, `vegetation_mean` and `s2_ndvi_mean` follow, all consistent with green cells being low-density and well vegetated. This is the cleanest, most separable decision of the three.
+
+![Figure 5. SHAP summary for the normal built-up class in the Random Forest/XGBoost tabular workflow.](figures/fig06_shap_normal_built_up.png)
+
+For the normal-built-up class the decision is led by `s2_ndvi_mean`, `builtup_stdDev` and `builtup_mean`, but the SHAP values are smaller and more symmetric than for the green class. This reflects its role as the heterogeneous majority class against which both other classes are contrasted, so no single feature dominates.
+
+![Figure 6. SHAP summary for the urban-village class in the Random Forest/XGBoost tabular workflow.](figures/fig07_shap_urban_village.png)
+
+For the urban-village class `s2_ndvi_mean` dominates again, but in the opposite direction: a very low annual NDVI (blue) is the single strongest signal pushing a cell towards village, reinforced by low quarterly NDVI (`q1`, `q2`). Built-up density and Sentinel-1 descending backscatter (`s1_desc_*`) add secondary support, with `road_density_m_per_km2` contributing further down. This matches the morphological intuition that urban villages are the most vegetation-free, most densely built fabric in the city.
+
+**Which inputs carry the signal — feature ablation.** Figure 7 reports macro-F1 (left) and urban-village F1 (right) as feature groups are added cumulatively.
+
+![Figure 7. Feature-ablation result for the tabular model feature groups.](figures/fig04_feature_ablation.png)
+
+The full feature set (S2 annual + quarterly + GLCM SWIR texture + S1 ASC and DESC + WorldCover context + OSM road density) reaches macro-F1 = 0.720, whereas S2 annual alone reaches only 0.609. Macro-F1 rises monotonically as sources are added, with the largest jump coming from WorldCover urban context. The village-class panel is flatter and noisier — every configuration stays near 0.15–0.18 — which again shows that the minority class is the binding constraint and that no single feature group rescues it on its own.
 
 ### 7.3 GraphSAGE results (Book 3)
 
@@ -422,7 +438,7 @@ Directly comparable numbers are not available, because, as §2 noted, no publish
 
 Three directions would extend this project usefully.
 
-The first is **manual validation**. A subset of 200–500 grids drawn from `output/book2_v3_manual_validation_sample_*.geojson`, hand-labelled by a single trained annotator on Esri or Tianditu basemap, would convert the project's weak-label F1 into a defensible absolute accuracy figure. The cost is a few hours of annotation per test city.
+The first is **manual validation**. A subset of 200–500 grids drawn from `output/book2_manual_validation_sample.geojson`, hand-labelled by a single trained annotator on Esri or Tianditu basemap, would convert the project's weak-label F1 into a defensible absolute accuracy figure. The cost is a few hours of annotation per test city.
 
 The second is **graph-aware sampling under imbalance**. GraphSMOTE (Zhao et al., 2021) and BorderlineSMOTE for graphs interpolate synthetic minority nodes *and* synthesise their edges, which is the operation SMOTE-on-features alone cannot do. Applying GraphSMOTE to the kNN graph used in Book 3 would test whether spatial oversampling of the minority class lifts GraphSAGE precision without sacrificing its high village-class recall.
 
