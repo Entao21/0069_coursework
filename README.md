@@ -3,6 +3,8 @@
 # **Which Method of Machine Learning is the Best?**
 ## **Evaluating the potential of multiple machine learning approaches for low-cost remote-sensing-only detection of Chinese urban villages**
 
+<p align="center"><img src="figures/banner.jpg" alt="Project banner" width="100%"></p>
+
 ## **Contents**
 
 - [Project Overview](#project-overview)
