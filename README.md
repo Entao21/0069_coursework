@@ -838,8 +838,11 @@ Zhao, T., Zhang, X. and Wang, S. (2021) 'GraphSMOTE: Imbalanced node classificat
 <p align="right"><a href="#top">↑ Back to top</a></p>
 
 ## **Contact**
+
 Author: Entao Wang
+
 Email: zcfaew0@ucl.ac.uk
+
 Institution: Centre for Advanced Spatial Analysis, UCL Bartlett Faculty of the Built Environment
 
 <p align="right"><a href="#top">↑ Back to top</a></p>
